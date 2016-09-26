@@ -41,3 +41,85 @@ py_class!(class Particle |py| {
         Ok(py.None())
     }
 });
+
+#[cfg(test)]
+mod tests {
+    mod rust {
+        use cpython::Python;
+        use super::super::Particle;
+
+        #[test]
+        fn name() {
+            let gil = Python::acquire_gil();
+            let py = gil.python();
+            let particle = create_instance!(py, Particle, ("He",));
+            assert!(particle.name(py).unwrap() == "He");
+            particle.set_name(py, "Kr").unwrap();
+            assert!(particle.name(py).unwrap() == "Kr");
+        }
+
+        #[test]
+        fn mass() {
+            let gil = Python::acquire_gil();
+            let py = gil.python();
+            let particle = create_instance!(py, Particle, ("He",));
+            assert!(particle.mass(py).unwrap() == 4.0026021003723145);
+            particle.set_mass(py, 42.0).unwrap();
+            assert!(particle.mass(py).unwrap() == 42.0);
+        }
+
+        #[test]
+        fn charge() {
+            let gil = Python::acquire_gil();
+            let py = gil.python();
+            let particle = create_instance!(py, Particle, ("He",));
+            assert!(particle.charge(py).unwrap() == 0.0);
+            particle.set_charge(py, 2.0).unwrap();
+            assert!(particle.charge(py).unwrap() == 2.0);
+        }
+    }
+
+    mod python {
+        use cpython::Python;
+        use super::super::Particle;
+
+        #[test]
+        fn name() {
+            let gil = Python::acquire_gil();
+            let py = gil.python();
+            let particle = create_instance!(py, Particle, ("He",));
+
+            py_run_with!(py, particle;
+                "assert particle.name() == 'He'",
+                "particle.set_name('Kr')",
+                "assert particle.name() == 'Kr'"
+            );
+        }
+
+        #[test]
+        fn mass() {
+            let gil = Python::acquire_gil();
+            let py = gil.python();
+            let particle = create_instance!(py, Particle, ("He",));
+
+            py_run_with!(py, particle;
+                "assert particle.mass() == 4.0026021003723145",
+                "particle.set_mass(33)",
+                "assert particle.mass() == 33"
+            );
+        }
+
+        #[test]
+        fn charge() {
+            let gil = Python::acquire_gil();
+            let py = gil.python();
+            let particle = create_instance!(py, Particle, ("He",));
+
+            py_run_with!(py, particle;
+                "assert particle.charge() == 0.0",
+                "particle.set_charge(2)",
+                "assert particle.charge() == 2"
+            );
+        }
+    }
+}

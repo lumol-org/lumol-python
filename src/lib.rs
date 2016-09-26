@@ -2,6 +2,8 @@
 extern crate cpython;
 extern crate lumol;
 
+#[macro_use]
+mod testing;
 mod systems;
 
 py_module_initializer!(lumol, initlumol, PyInit_lumol, |py, m| {
