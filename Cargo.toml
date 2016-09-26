@@ -1,0 +1,11 @@
+[package]
+name = "lumol-py"
+version = "0.1.0"
+authors = ["Guillaume Fraux <guillaume.fraux@ens.fr>"]
+
+[dependencies]
+lumol = {git = "https://github.com/lumol-org/lumol", rev = "11503ea"}
+cpython = {git = "https://github.com/dgrunwald/rust-cpython/", rev = "1129131"}
+
+[lib]
+crate-type = ["cdylib"]
