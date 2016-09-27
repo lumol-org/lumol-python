@@ -24,3 +24,11 @@ macro_rules! py_run {
          py_run!($py, $dict, $($tail),+);
     });
 }
+
+macro_rules! register {
+    (|$py: ident, $m: ident| $closure: expr) => (
+        pub fn register($py: ::cpython::Python, $m: &::cpython::PyModule) -> ::cpython::PyResult<()> {
+            return $closure;
+        }
+    );
+}

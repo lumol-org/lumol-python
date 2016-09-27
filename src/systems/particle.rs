@@ -1,12 +1,11 @@
-use cpython::{PyObject, PyResult, PyModule, Python};
+use cpython::{PyObject, PyResult};
 use lumol;
 use std::cell::RefCell;
 
-pub fn register(py: Python, m: &PyModule) -> PyResult<()> {
+register!(|py, m| {
     try!(m.add_class::<Particle>(py));
     Ok(())
-}
-
+});
 
 py_class!(class Particle |py| {
     data particle: RefCell<lumol::Particle>;
