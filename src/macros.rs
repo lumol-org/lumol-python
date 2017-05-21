@@ -23,7 +23,7 @@ def assert_raises(callable, *args, **kwargs):
         locals.set_item($py, stringify!($obj), $obj).unwrap();
 
         let globals = PyDict::new($py);
-        let error = $py.get_type::<::LumolError>();
+        let error = $py.get_type::<$crate::error::LumolError>();
         globals.set_item($py, "LumolError", error).unwrap();
 
         py_run!($py, globals, locals, ASSERT_RAISES_PY);
@@ -54,6 +54,6 @@ macro_rules! register {
 
 macro_rules! raise {
     ($py: ident, $args: expr) => ({
-        Err(PyErr::new::<LumolError, _>($py, $args))
+        Err(PyErr::new::<$crate::error::LumolError, _>($py, $args))
     });
 }

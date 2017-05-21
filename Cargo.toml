@@ -5,8 +5,8 @@ authors = ["Guillaume Fraux <guillaume.fraux@ens.fr>"]
 build = "build.rs"
 
 [dependencies]
-lumol = {git = "https://github.com/lumol-org/lumol", rev = "11503ea"}
-cpython = {git = "https://github.com/dgrunwald/rust-cpython/", rev = "1129131"}
+lumol-core = {git = "https://github.com/lumol-org/lumol", rev = "788c94e"}
+cpython = {git = "https://github.com/dgrunwald/rust-cpython/", rev = "4773d2e3"}
 
 [lib]
 crate-type = ["cdylib"]

@@ -1,9 +1,7 @@
 use cpython::{PyObject, PyErr, PyResult, PyTuple, ToPyObject, PythonObject};
 use lumol;
-use lumol::Vector3D;
+use lumol::types::Vector3D;
 use std::cell::RefCell;
-
-use LumolError;
 
 register!(|py, m| {
     try!(m.add_class::<Particle>(py));
@@ -11,9 +9,9 @@ register!(|py, m| {
 });
 
 py_class!(class Particle |py| {
-    data particle: RefCell<lumol::Particle>;
+    data particle: RefCell<lumol::sys::Particle>;
     def __new__(_cls, name: &str) -> PyResult<Particle> {
-        Particle::create_instance(py, RefCell::new(lumol::Particle::new(name)))
+        Particle::create_instance(py, RefCell::new(lumol::sys::Particle::new(name)))
     }
 
     def name(&self) -> PyResult<String> {
