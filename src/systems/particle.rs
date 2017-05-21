@@ -1,7 +1,8 @@
 use cpython::{PyObject, PyErr, PyResult, PyTuple, ToPyObject, PythonObject};
-use lumol;
-use lumol::types::Vector3D;
 use std::cell::RefCell;
+use lumol;
+
+use traits::Callback;
 
 register!(|py, m| {
     try!(m.add_class::<Particle>(py));
@@ -9,46 +10,70 @@ register!(|py, m| {
 });
 
 py_class!(class Particle |py| {
-    data particle: RefCell<lumol::sys::Particle>;
+    data particle: Box<Callback<lumol::sys::Particle>>;
     def __new__(_cls, name: &str) -> PyResult<Particle> {
-        Particle::create_instance(py, RefCell::new(lumol::sys::Particle::new(name)))
+        Particle::create_instance(py,
+            Box::new(RefCell::new(lumol::sys::Particle::new(name)))
+        )
     }
 
     def name(&self) -> PyResult<String> {
-        Ok(self.particle(py).borrow().name().into())
+        let mut name = String::new();
+        self.particle(py).with_ref(&mut |atom| {
+            name += atom.name();
+        });
+        Ok(name)
     }
 
     def set_name(&self, name: &str) -> PyResult<PyObject> {
-        self.particle(py).borrow_mut().set_name(name);
+        self.particle(py).with_mut(&mut |atom| {
+            atom.set_name(name)
+        });
         Ok(py.None())
     }
 
     def mass(&self) -> PyResult<f64> {
-        Ok(self.particle(py).borrow().mass)
+        let mut mass = 0.0;
+        self.particle(py).with_ref(&mut |atom| {
+            mass = atom.mass;
+        });
+        Ok(mass)
     }
 
     def set_mass(&self, mass: f64) -> PyResult<PyObject> {
-        self.particle(py).borrow_mut().mass = mass;
+        self.particle(py).with_mut(&mut |atom| {
+            atom.mass = mass;
+        });
         Ok(py.None())
     }
 
     def charge(&self) -> PyResult<f64> {
-        Ok(self.particle(py).borrow().charge)
+        let mut charge = 0.0;
+        self.particle(py).with_ref(&mut |atom| {
+            charge = atom.charge;
+        });
+        Ok(charge)
     }
 
     def set_charge(&self, charge: f64) -> PyResult<PyObject> {
-        self.particle(py).borrow_mut().charge = charge;
+        self.particle(py).with_mut(&mut |atom| {
+            atom.charge = charge;
+        });
         Ok(py.None())
     }
 
     def position(&self) -> PyResult<PyTuple> {
-        let position = &self.particle(py).borrow().position;
-
-        let x = position[0].to_py_object(py).into_object();
-        let y = position[1].to_py_object(py).into_object();
-        let z = position[2].to_py_object(py).into_object();
-
-        Ok(PyTuple::new(py, &[x, y, z]))
+        let mut position = [0.0; 3];
+        self.particle(py).with_ref(&mut |atom| {
+            position[0] = atom.position[0];
+            position[1] = atom.position[1];
+            position[2] = atom.position[2];
+        });
+        Ok(PyTuple::new(py, &[
+            position[0].to_py_object(py).into_object(),
+            position[1].to_py_object(py).into_object(),
+            position[2].to_py_object(py).into_object(),
+        ]))
     }
 
     def set_position(&self, position: &PyTuple) -> PyResult<PyObject> {
@@ -69,19 +94,26 @@ py_class!(class Particle |py| {
             raise!(py, "Position elements should be numbers"))
         );
 
-        self.particle(py).borrow_mut().position = Vector3D::new(x, y, z);
-
+        self.particle(py).with_mut(&mut |atom| {
+            atom.position[0] = x;
+            atom.position[1] = y;
+            atom.position[2] = z;
+        });
         Ok(py.None())
     }
 
     def velocity(&self) -> PyResult<PyTuple> {
-        let velocity = &self.particle(py).borrow().velocity;
-
-        let x = velocity[0].to_py_object(py).into_object();
-        let y = velocity[1].to_py_object(py).into_object();
-        let z = velocity[2].to_py_object(py).into_object();
-
-        Ok(PyTuple::new(py, &[x, y, z]))
+        let mut velocity = [0.0; 3];
+        self.particle(py).with_ref(&mut |atom| {
+            velocity[0] = atom.velocity[0];
+            velocity[1] = atom.velocity[1];
+            velocity[2] = atom.velocity[2];
+        });
+        Ok(PyTuple::new(py, &[
+            velocity[0].to_py_object(py).into_object(),
+            velocity[1].to_py_object(py).into_object(),
+            velocity[2].to_py_object(py).into_object(),
+        ]))
     }
 
     def set_velocity(&self, velocity: &PyTuple) -> PyResult<PyObject> {
@@ -102,7 +134,11 @@ py_class!(class Particle |py| {
             raise!(py, "Velocity elements should be numbers"))
         );
 
-        self.particle(py).borrow_mut().velocity = Vector3D::new(x, y, z);
+        self.particle(py).with_mut(&mut |atom| {
+            atom.velocity[0] = x;
+            atom.velocity[1] = y;
+            atom.velocity[2] = z;
+        });
 
         Ok(py.None())
     }
