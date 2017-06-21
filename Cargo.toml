@@ -2,7 +2,6 @@
 name = "lumol-py"
 version = "0.1.0"
 authors = ["Guillaume Fraux <guillaume.fraux@ens.fr>"]
-build = "build.rs"
 
 [lib]
 crate-type = ["cdylib"]
