@@ -7,7 +7,7 @@ macro_rules! create_instance {
 }
 
 macro_rules! py_run_with {
-    ($py: ident, $obj: ident; $($code: expr),+) => ({
+    ($py: ident, $($obj: ident),+; $($code: expr),+ $(,)*) => ({
         const ASSERT_RAISES_PY: &'static str = "
 def assert_raises(callable, *args, **kwargs):
     throw = True
@@ -20,7 +20,9 @@ def assert_raises(callable, *args, **kwargs):
 ";
         use cpython::PyDict;
         let locals = PyDict::new($py);
-        locals.set_item($py, stringify!($obj), $obj).unwrap();
+        $(
+            locals.set_item($py, stringify!($obj), $obj).unwrap();
+        )+
 
         let globals = PyDict::new($py);
         let error = $py.get_type::<$crate::error::LumolError>();
