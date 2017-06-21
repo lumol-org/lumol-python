@@ -1,4 +1,9 @@
 macro_rules! create_instance {
+    ($py: ident, $Type: ty) => ({
+        let class = $py.get_type::<$Type>();
+        let instance: $Type = class.call($py, ::cpython::PyTuple::empty($py), None).unwrap().extract($py).unwrap();
+        instance
+    });
     ($py: ident, $Type: ty, $args: expr) => ({
         let class = $py.get_type::<$Type>();
         let instance: $Type = class.call($py, $args, None).unwrap().extract($py).unwrap();
