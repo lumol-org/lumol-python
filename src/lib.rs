@@ -4,6 +4,10 @@
 extern crate cpython;
 extern crate lumol;
 
+#[cfg(test)]
+#[macro_use]
+extern crate approx;
+
 #[macro_use]
 mod macros;
 mod error;

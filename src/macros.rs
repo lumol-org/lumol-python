@@ -13,7 +13,7 @@ macro_rules! create_instance {
 
 macro_rules! py_run_with {
     ($py: ident, $($obj: ident),+; $($code: expr),+ $(,)*) => ({
-        const ASSERT_RAISES_PY: &'static str = "
+        const ADDITIONAL_DEFINITIONS: &'static str = "
 def assert_raises(callable, *args, **kwargs):
     throw = True
     try:
@@ -22,6 +22,13 @@ def assert_raises(callable, *args, **kwargs):
     except LumolError:
         pass
     assert throw
+
+def assert_approx_eq(a, b):
+    # the abs function is not available when running from Rust
+    abs = a - b
+    if abs < 0:
+        abs = -abs
+    assert abs < 1e-12
 ";
         use cpython::PyDict;
         let locals = PyDict::new($py);
@@ -33,12 +40,9 @@ def assert_raises(callable, *args, **kwargs):
         let error = $py.get_type::<$crate::error::LumolError>();
         globals.set_item($py, "LumolError", error).unwrap();
 
-        py_run!($py, globals, locals, ASSERT_RAISES_PY);
+        py_run!($py, globals, locals, ADDITIONAL_DEFINITIONS);
         py_run!($py, globals, locals, $($code),+);
     });
-    ($py: ident, $obj: ident; $($code: expr),+,) => (
-        py_run_with!($py, $obj; $($code),+);
-    )
 }
 
 macro_rules! py_run {
