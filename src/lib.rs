@@ -13,10 +13,10 @@ mod macros;
 mod error;
 mod traits;
 
-mod systems;
+mod sys;
 
 py_module_initializer!(lumol, initlumol, PyInit_lumol, |py, m| {
     try!(m.add(py, "__doc__", "Modern and extensible molecular simulation engine"));
-    try!(systems::register(py, m));
+    try!(sys::register(py, m));
     Ok(())
 });
